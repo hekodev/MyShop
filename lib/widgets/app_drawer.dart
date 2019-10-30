@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../screens/orders_screen.dart';
+import '../screens/user_products_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   @override
@@ -13,23 +14,41 @@ class AppDrawer extends StatelessWidget {
             automaticallyImplyLeading: false,
           ),
           Divider(),
-          ListTile(
-            leading: Icon(Icons.shop),
-            title: Text('Shop'),
-            onTap: () {
+          buildListTile(
+            'Shop',
+            Icons.shop,
+            () {
               Navigator.of(context).pushReplacementNamed('/');
             },
           ),
           Divider(),
-          ListTile(
-            leading: Icon(Icons.payment),
-            title: Text('Order'),
-            onTap: () {
-              Navigator.of(context).pushReplacementNamed(OrdersScreen.routeName);
+          buildListTile(
+            'Order',
+            Icons.payment,
+            () {
+              Navigator.of(context)
+                  .pushReplacementNamed(OrdersScreen.routeName);
+            },
+          ),
+          Divider(),
+          buildListTile(
+            'Your Products',
+            Icons.edit,
+            () {
+              Navigator.of(context)
+                  .pushReplacementNamed(UserProductsScreen.routeName);
             },
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildListTile(String title, IconData icon, Function tapHandler) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      onTap: tapHandler,
     );
   }
 }

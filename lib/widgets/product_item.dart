@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../providers/product.dart';
 import '../providers/cart_provider.dart';
 
-
 import '../screens/product_detail_screen.dart';
 
 class ProductItem extends StatelessWidget {
@@ -49,7 +48,21 @@ class ProductItem extends StatelessWidget {
           trailing: IconButton(
             icon: Icon(Icons.shopping_cart),
             onPressed: () {
-              cart.addItem(loadedProduct.id, loadedProduct.price, loadedProduct.title);
+              cart.addItem(
+                  loadedProduct.id, loadedProduct.price, loadedProduct.title);
+              Scaffold.of(context).hideCurrentSnackBar();
+              Scaffold.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Item added to your cart!'),
+                  duration: Duration(seconds: 2),
+                  action: SnackBarAction(
+                    label: 'UNDO',
+                    onPressed: () {
+                      cart.removeSingleItem(loadedProduct.id);
+                    },
+                  ),
+                ),
+              );
             },
             color: Theme.of(context).accentColor,
           ),

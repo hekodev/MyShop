@@ -44,7 +44,7 @@ class _OrderItemState extends State<OrderItem> {
               child: ListView.builder(
                 itemCount: widget.order.products.length,
                 itemBuilder: (ctx, i) => Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween, 
                   children: <Widget>[
                     Text(
                       widget.order.products[i].title,

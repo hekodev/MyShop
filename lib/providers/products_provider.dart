@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import './product.dart';
 
@@ -66,21 +68,40 @@ class ProductsProvider with ChangeNotifier {
   // }
 
   void addProduct(Product product) {
-    final newProduct = Product(
-      title: product.title,
-      description: product.description,
-      imageUrl: product.imageUrl,
-      price: product.price,
-      id: DateTime.now().toString(),
+    const url = 'https://myshop-app-74a07.firebaseio.com/products.json';
+    http
+        .post(
+      url,
+      body: json.encode(
+        {
+          'title': product.title,
+          'description': product.description,
+          'price': product.price,
+          'imageUrl': product.imageUrl,
+          'isFavorite': product.isFavorite,
+        },
+      ),
+    )
+        .then(
+      (response) {
+        final newProduct = Product(
+          title: product.title,
+          description: product.description,
+          imageUrl: product.imageUrl,
+          price: product.price,
+          id: json.decode(response.body)['name'],
+        );
+        _items.add(newProduct);
+        // equivalent to _items.insert(0, newProduct); to add it at the start of the list
+        notifyListeners();
+      },
     );
-    _items.add(newProduct);
-    // equivalent to _items.insert(0, newProduct); to add it at the start of the list
-    notifyListeners();
   }
 
   void updateProduct(String id, Product newProduct) {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
-    if (prodIndex >= 0) { //this check was not necessary , Section 9/227. 13:00
+    if (prodIndex >= 0) {
+      //this check was not necessary , Section 9/227. 13:00
       _items[prodIndex] = newProduct;
       notifyListeners();
     } else {
@@ -88,9 +109,8 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  void deleteProduct(String id){
+  void deleteProduct(String id) {
     _items.removeWhere((prod) => prod.id == id);
     notifyListeners();
   }
-
 }

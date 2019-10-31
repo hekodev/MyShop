@@ -69,7 +69,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _priceFocusNode.dispose();
     _descriptionFocusNode.dispose();
     _imageUrlController.dispose();
-    _imageUrlController.dispose();
     super.dispose();
   }
 
@@ -245,8 +244,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           id: _editedProduct.id,
                           title: _editedProduct.title,
                           price: _editedProduct.price,
-                          imageUrl: _editedProduct.imageUrl,
-                          description: _,
+                          imageUrl: _,
+                          description: _editedProduct.description,
                           isFavorite: _editedProduct.isFavorite,
                         );
                       },

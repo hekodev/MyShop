@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../providers/product.dart';
+import '../providers/products_provider.dart';
 
 class EditProductScreen extends StatefulWidget {
   static const routeName = '/edit-product-screen';
@@ -22,12 +24,42 @@ class _EditProductScreenState extends State<EditProductScreen> {
     description: '',
     imageUrl: '',
   );
+  var _initValues = {
+    'title': '',
+    'description': '',
+    'price': '',
+    'imagUrl': '',
+  };
+  var _isInit = true;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _imageUrlFocusNode.addListener(_updateImageUrl);
+  }
+
+  //Fetching our arguments from UserProductItem edit button
+  //our current editedProduct will be the item we want to edit
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      final productId = ModalRoute.of(context).settings.arguments as String;
+      if (productId != null) {
+        _editedProduct = Provider.of<ProductsProvider>(context, listen: false)
+            .findById(productId);
+        _initValues = {
+          'title': _editedProduct.title,
+          'description': _editedProduct.description,
+          'price': _editedProduct.price.toString(),
+          //'imagUrl': _editedProduct.imageUrl,
+          'imageUrl': '',
+        };
+        _imageUrlController.text = _editedProduct.imageUrl;
+      }
+    }
+    _isInit = false;
+    super.didChangeDependencies();
   }
 
   @override
@@ -43,12 +75,31 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   void _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus) {
+      if ((!_imageUrlController.text.startsWith('http') &&
+              !_imageUrlController.text.startsWith('https')) ||
+          (!_imageUrlController.text.endsWith('.png') &&
+              !_imageUrlController.text.endsWith('.jpg') &&
+              !_imageUrlController.text.endsWith('.jpeg'))) {
+        return;
+      }
       setState(() {});
     }
   }
 
   void _saveForm() {
+    final isValid = _form.currentState.validate();
+    if (!isValid) {
+      return;
+    }
     _form.currentState.save();
+    if (_editedProduct.id != null) {
+      Provider.of<ProductsProvider>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct);
+    } else {
+      Provider.of<ProductsProvider>(context, listen: false)
+          .addProduct(_editedProduct);
+    }
+    Navigator.of(context).pop();
   }
 
   @override
@@ -70,6 +121,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           child: ListView(
             children: <Widget>[
               TextFormField(
+                initialValue: _initValues['title'],
                 decoration: InputDecoration(labelText: 'Title'),
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: (_) {
@@ -82,10 +134,19 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     price: _editedProduct.price,
                     imageUrl: _editedProduct.imageUrl,
                     description: _editedProduct.description,
+                    isFavorite: _editedProduct.isFavorite,
                   );
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    //we have an error
+                    return 'Please enter a title.';
+                  }
+                  return null; //we have no error (acceptes juste, cest la syntax pour le dire)
                 },
               ),
               TextFormField(
+                initialValue: _initValues['price'],
                 decoration: InputDecoration(labelText: 'Price'),
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
@@ -100,10 +161,25 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     price: double.parse(_),
                     imageUrl: _editedProduct.imageUrl,
                     description: _editedProduct.description,
+                    isFavorite: _editedProduct.isFavorite,
                   );
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    //we have an error
+                    return 'Please enter a price.';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter a price.';
+                  }
+                  if (double.parse(value) <= 0) {
+                    return 'Please enter a price greater than zero.';
+                  }
+                  return null; //we have no error (acceptes juste, cest la syntax pour le dire)
                 },
               ),
               TextFormField(
+                initialValue: _initValues['description'],
                 decoration: InputDecoration(labelText: 'Description'),
                 maxLines: 3,
                 keyboardType: TextInputType.multiline,
@@ -115,7 +191,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     price: _editedProduct.price,
                     imageUrl: _editedProduct.imageUrl,
                     description: value,
+                    isFavorite: _editedProduct.isFavorite,
                   );
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    //we have an error
+                    return 'Please enter a description.';
+                  }
+                  if (value.length < 10) {
+                    return 'Should be at least 10 characters long.';
+                  }
+                  return null; //we have no error (acceptes juste, cest la syntax pour le dire)
                 },
               ),
               Row(
@@ -160,7 +247,24 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           price: _editedProduct.price,
                           imageUrl: _editedProduct.imageUrl,
                           description: _,
+                          isFavorite: _editedProduct.isFavorite,
                         );
+                      },
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          //we have an error
+                          return 'Please enter a Image URL.';
+                        }
+                        if (!value.startsWith('http') &&
+                            !value.startsWith('https')) {
+                          return 'Please enter a valid URL.';
+                        }
+                        if (!value.endsWith('.png') &&
+                            !value.endsWith('.jpg') &&
+                            !value.endsWith('.jpeg')) {
+                          return 'Please enter a valid Image URL.';
+                        }
+                        return null; //we have no error (acceptes juste, cest la syntax pour le dire)
                       },
                     ),
                   ),

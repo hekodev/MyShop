@@ -47,7 +47,7 @@ class ProductsProvider with ChangeNotifier {
     return [..._items];
   }
 
-  List<Product> get favoriteItems{
+  List<Product> get favoriteItems {
     return _items.where((prod) => prod.isFavorite).toList();
   }
 
@@ -65,8 +65,32 @@ class ProductsProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  void addProduct() {
-    // _items.add(value);
+  void addProduct(Product product) {
+    final newProduct = Product(
+      title: product.title,
+      description: product.description,
+      imageUrl: product.imageUrl,
+      price: product.price,
+      id: DateTime.now().toString(),
+    );
+    _items.add(newProduct);
+    // equivalent to _items.insert(0, newProduct); to add it at the start of the list
     notifyListeners();
   }
+
+  void updateProduct(String id, Product newProduct) {
+    final prodIndex = _items.indexWhere((prod) => prod.id == id);
+    if (prodIndex >= 0) { //this check was not necessary , Section 9/227. 13:00
+      _items[prodIndex] = newProduct;
+      notifyListeners();
+    } else {
+      // print('...');
+    }
+  }
+
+  void deleteProduct(String id){
+    _items.removeWhere((prod) => prod.id == id);
+    notifyListeners();
+  }
+
 }

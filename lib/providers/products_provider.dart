@@ -67,9 +67,9 @@ class ProductsProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  void addProduct(Product product) {
+  Future<void> addProduct(Product product) {
     const url = 'https://myshop-app-74a07.firebaseio.com/products.json';
-    http
+    return http
         .post(
       url,
       body: json.encode(
@@ -95,7 +95,10 @@ class ProductsProvider with ChangeNotifier {
         // equivalent to _items.insert(0, newProduct); to add it at the start of the list
         notifyListeners();
       },
-    );
+    ).catchError((error){
+      print(error);
+      throw error;
+    });
   }
 
   void updateProduct(String id, Product newProduct) {

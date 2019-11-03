@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
+import '../providers/products_provider.dart';
 
 import '../screens/cart_screen.dart';
 
 import '../widgets/badge.dart';
 import '../widgets/products_grid.dart';
 import '../widgets/app_drawer.dart';
-
 
 enum FilterOptions {
   Favorites,
@@ -22,6 +22,36 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _showOnlyFavorites = false;
+  var _isInit = true;
+  var _isLoading = false;
+
+  @override
+  void initState() {
+    //Provider.of<ProductsProvider>(context).fetchAndSetProducts()    // this won't work unless we add listen:false
+    // Future.delayed(Duration.zero).then((_) {
+    //   Provider.of<ProductsProvider>(context).fetchAndSetProducts();
+    // });
+
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    //runs after the wigdet was fully initialized and before it build itsef,
+    // but runs multiple times so we have to verify if it runs for the first time and only that time with _isInit
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+      Provider.of<ProductsProvider>(context).fetchAndSetProducts().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +98,11 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           ),
         ],
       ),
-      body: ProductsGrid(_showOnlyFavorites),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductsGrid(_showOnlyFavorites),
     );
   }
 }

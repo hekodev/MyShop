@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:convert'; //for the json
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -149,11 +149,10 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url =
-        'https://myshop-app-74a07.firebaseio.com/products/$id'; //DONT FORGET TO RE-ADD THE ".json" at the end
+        'https://myshop-app-74a07.firebaseio.com/products/$id.json';
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     var existingProduct = _items[existingProductIndex];
     final response = await http.delete(url);
-
     _items.removeAt(existingProductIndex);
     notifyListeners();
     if (response.statusCode >= 400) {

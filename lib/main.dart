@@ -8,11 +8,12 @@ import 'screens/cart_screen.dart';
 import 'screens/orders_screen.dart';
 import 'screens/user_products_screen.dart';
 import 'screens/edit_product_screen.dart';
-import 'package:myshop/screens/auth_screen.dart';
+import 'screens/auth_screen.dart';
 
 import 'providers/products_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/orders.dart';
+import 'providers/auth.dart';
 
 void main() => runApp(MyApp());
 
@@ -21,6 +22,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(
+          value: Auth(),
+        ),
         ChangeNotifierProvider.value(
           value: ProductsProvider(),
         ),
@@ -39,14 +43,14 @@ class MyApp extends StatelessWidget {
           fontFamily: 'Lato',
         ),
         //home: MyHomePage(),
-        home: ProductsOverviewScreen(), 
+        home: AuthScreen(), 
         routes: {
           ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
           CartScreen.routeName: (ctx) => CartScreen(),
           OrdersScreen.routeName: (ctx) => OrdersScreen(),
           UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
           EditProductScreen.routeName: (ctx) => EditProductScreen(),
-          AuthScreen.routeName: (ctx) => AuthScreen(),
+          //AuthScreen.routeName: (ctx) => AuthScreen(),
         },
       ),
     );

@@ -161,7 +161,7 @@ class ProductsProvider with ChangeNotifier {
     if (response.statusCode >= 400) {
       _items.insert(existingProductIndex, existingProduct);
       notifyListeners();
-      throw HttException('Could not delete'); 
+      throw HttpException('Could not delete'); 
     } else 
     existingProduct = null;
   }

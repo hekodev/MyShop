@@ -45,6 +45,10 @@ class ProductsProvider with ChangeNotifier {
 
   // var _showFavoritesOnly = false;
 
+  final String authToken;
+
+  ProductsProvider(this.authToken, this._items);
+
   List<Product> get items {
     // if (_showFavoritesOnly) {
     //   return _items.where((prodItem) => prodItem.isFavorite).toList();
@@ -71,13 +75,16 @@ class ProductsProvider with ChangeNotifier {
   // }
 
   Future<void> fetchAndSetProducts() async {
-    const url = 'https://myshop-app-74a07.firebaseio.com/products.json';
+    final url = 'https://myshop-app-74a07.firebaseio.com/products.json?auth=${authToken}';
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       if(extractedData == null) {
         return;
       }
+      // final url1 =
+      //   'https://myshop-app-74a07.firebaseio.com/userFavorites/$userId/$id.json?auth=${token}';
+      final favoriteResponse = await http.get(url);
       final List<Product> loadedProducts = [];
       extractedData.forEach((prodId, prodData) {
         loadedProducts.add(
@@ -99,7 +106,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    const url = 'https://myshop-app-74a07.firebaseio.com/products.json';
+    final url = 'https://myshop-app-74a07.firebaseio.com/products.json?auth=${authToken}';
     try {
       final response = await http.post(
         url,
@@ -109,7 +116,6 @@ class ProductsProvider with ChangeNotifier {
             'description': product.description,
             'price': product.price,
             'imageUrl': product.imageUrl,
-            'isFavorite': product.isFavorite,
           },
         ),
       );
@@ -134,7 +140,7 @@ class ProductsProvider with ChangeNotifier {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
     if (prodIndex >= 0) {
       //this check was not necessary , Section 9/227. 13:00
-      final url = 'https://myshop-app-74a07.firebaseio.com/products/$id.json';
+      final url = 'https://myshop-app-74a07.firebaseio.com/products/$id.json?auth=${authToken}';
       //we should implement a try catch here
       await http.patch(url,
           body: json.encode({
@@ -152,7 +158,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url =
-        'https://myshop-app-74a07.firebaseio.com/products/$id.json';
+        'https://myshop-app-74a07.firebaseio.com/products/$id.json?auth=${authToken}';
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     var existingProduct = _items[existingProductIndex];
     final response = await http.delete(url);
